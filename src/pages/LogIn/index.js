@@ -245,5 +245,3 @@ const styles = StyleSheet.create({
     }
     
 });
-
-//ola
