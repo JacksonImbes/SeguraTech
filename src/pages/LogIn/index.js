@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import {View, Text, StyleSheet, TextInput, TouchableOpacity,KeyboardAvoidingView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';

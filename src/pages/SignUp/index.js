@@ -15,138 +15,192 @@ import {useForm, Controller } from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup'
 import * as yup from 'yup';
 
-const schema = yup.object({
-    email: yup.string().email("Email inválido").required("O campo \"Email\" é obrigatório"),
-    password: yup.string().min(6, "A senha deve conter pelo menos 6 dígitos").required("O campo \"Senha\" é obrigatório"),
-    username: yup.string().required("O campo \"Usuário\" é obrigatório"),
-})
-
-export default function SignUp() {
+const schema = yup.object().shape({
+    username: yup.string().required('Campo \"Nome"\ é obrigatório'),
+    email: yup.string().email('E-mail inválido').required('Campo \"Email"\ é obrigatório'),
+    password: yup.string().min(6, 'Senha deve ter no mínimo 6 caracteres').required('Campo \"Senha"\ é obrigatório'),
+    confirmarSenha: yup.string().required('Campo \"Confirmar Senha"\ é obrigatório').test('password-match', 'Senhas devem ser iguais', function(value) {
+        return this.parent.password === value;
+      }),
+    cargo: yup.string().test('is-checked', 'Selecione um cargo', (value) => value === 'Almoxarifado' || value === 'Operador').required('Selecione um cargo'),
+  });
+  
+  export default function SignUp() {
     const navigation = useNavigation();
-
-    const [selectedOption, setSelectedOption] = useState(null);
-
+  
+    const { control, handleSubmit, formState: { errors }, setValue } = useForm({
+      resolver: yupResolver(schema)
+    });
+  
+    const [selectedOption, setSelectedOption] = useState('');
+  
     const handleCheckBoxClick = (option) => {
         setSelectedOption(option);
-      };
+        setValue('cargo', option);
+    };
 
-      const {control, handleSubmit, formState : {errors}} = useForm({
-        resolver: yupResolver(schema)
-    });
-
-    async function createUser(schema){
-        await createUserWithEmailAndPassword(auth, schema.email, schema.password, schema.username)
+    async function createUser(schema) {
+        await createUserWithEmailAndPassword(auth, schema.email, schema.password,schema.confirmarSenha, schema.username, schema.cargo)
         .then(() => {
             console.log('Conta criada com sucesso!');
             navigation.navigate('LogIn');
-        })
+        });
     };
-
-    return(
-        <View style={styles.container}>
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-
-            <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
-                <Text style={styles.message}>Cadastre-se</Text>
-            </Animatable.View>
-
-            <Animatable.View animation="fadeInUp" style={styles.containerForm}>
-
-            <Text style={styles.title}>Usuário</Text>
-            <View style={styles.containerUserame}>
-            <Controller
+  
+    return (
+      <View style={styles.container}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+  
+          <Animatable.View animation="fadeInLeft" delay={500} style={styles.containerHeader}>
+            <Text style={styles.message}>Cadastre-se</Text>
+          </Animatable.View>
+  
+          <Animatable.View animation="fadeInUp" style={styles.containerForm}>
+  
+            <Text style={styles.title}>Nome</Text>
+            <View style={styles.containerUsername}>
+              <Controller
                 control={control}
                 name="username"
-                render={({field:{onChange, onBlur, value}}) => (
-                    <TextInput
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
                     placeholder="Digite seu nome"
                     placeholderTextColor='#fff'
                     style={[styles.inputUsername, {
-                        borderWidth: errors.username && 1,
-                        borderColor: errors.username && '#ff375b'
+                      borderWidth: errors.username && 1,
+                      borderColor: errors.username && '#ff375b'
                     }]}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     value={value}
-                />
+                  />
                 )}
-            />
-                <Icon style={styles.iconUsername} name="person" color='#fff' size={25} />
+              />
+              <Icon style={styles.iconUsername} name="person" color='#fff' size={25} />
             </View>
-            {errors.username && <Text style = {styles.labelError}>{errors.username?.message}</Text>}
-
+            {errors.username && <Text style={styles.labelError}>{errors.username.message}</Text>}
+  
             <Text style={styles.title}>Email</Text>
             <View style={styles.containerEmail}>
-            <Controller
+              <Controller
                 control={control}
                 name="email"
-                render={({field:{onChange, onBlur, value}}) => (
-                    <TextInput
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
                     placeholder="Digite seu email"
                     placeholderTextColor='#fff'
                     style={[styles.inputEmail, {
-                        borderWidth: errors.email && 1,
-                        borderColor: errors.email && '#ff375b'
+                      borderWidth: errors.email && 1,
+                      borderColor: errors.email && '#ff375b'
                     }]}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     value={value}
                     keyboardType='email-address'
-                />
+                  />
                 )}
-            />
-                <Icon style={styles.iconMail} name="mail" color='#fff' size={25} />
+              />
+              <Icon style={styles.iconMail} name="mail" color='#fff' size={25} />
             </View>
-            {errors.email && <Text style = {styles.labelError}>{errors.email?.message}</Text>}
- 
+            {errors.email && <Text style={styles.labelError}>{errors.email.message}</Text>}
+  
             <Text style={styles.title}>Senha</Text>
+            <View style={styles.containerSenha}>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    placeholder="Digite sua Senha"
+                    placeholderTextColor='#fff'
+                    style={[styles.inputSenha, {
+                      borderWidth: errors.password && 1,borderColor: errors.password && '#ff375b'
+                    }]}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    secureTextEntry={true}
+                  />
+                )}
+              />
+              <Icon style={styles.iconSenha} name="key" color="#fff" size={25} />
+            </View>
+            {errors.password && <Text style={styles.labelError}>{errors.password.message}</Text>}
+
+            <Text style={styles.title}>Confirmar Senha</Text>
             <View style={styles.containerSenha}>
             <Controller
                 control={control}
-                name="password"
-                render={({field:{onChange, onBlur, value}}) => (
-                    <TextInput
-                        placeholder="Digite sua Senha"
-                        placeholderTextColor='#fff'
-                        style={[styles.inputSenha, {
-                            borderWidth: errors.password && 1,
-                            borderColor: errors.password && '#ff375b'
-                        }]}
-                        onChangeText={onChange}
-                        value={value}
-                        onBlur={onBlur}
-                    />
+                name="confirmarSenha"
+                rules={{ validate: (value) => schema.validate({ confirmarSenha: value }) }}
+                defaultValue=""
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    placeholder="Confirme sua senha"
+                    placeholderTextColor='#fff'
+                    style={[styles.inputSenha, {
+                      borderWidth: errors.password && 1,borderColor: errors.password && '#ff375b'
+                    }]}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    secureTextEntry={true}
+                  />
                 )}
-            />
-                <Icon style={styles.iconSenha} name="key" color='#fff' size={25} />
+              />
+              <Icon style={styles.iconSenha} name="checkmark-circle" color="#fff" size={25} />
             </View>
-            {errors.password && <Text style = {styles.labelError}>{errors.password?.message}</Text>}
-                
-                <View>
-                <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 28, marginTop: 28}} >Cargo Exercido</Text>
-                
-                    <CheckBox 
-                        style={{marginBottom: 16}}
-                        isChecked={selectedOption === 'Operador'}
-                        onClick={() => handleCheckBoxClick('Operador')}
-                        checkedCheckBoxColor= '#0E5CB5'
-                        uncheckedCheckBoxColor='black'
-                        rightText="Operador"
-                        rightTextStyle={{ fontSize: 19, color: selectedOption === 'Operador' ? '#0E5CB5' : 'black', fontWeight: 'bold' }}
-                        
-                    />
+            {errors.confirmarSenha && <Text style={styles.labelError}>{errors.confirmarSenha.message}</Text>}
+        
+            <Text style={styles.titleCargo}>Cargo</Text>
+            <View style={styles.containerCheckBox}>
 
-                    <CheckBox
+            <Controller
+                control={control}
+                name='Almoxarifado'
+                defaultValue={false}
+                render={({ field: { onChange, value } }) => (
+                    <CheckBox 
+                        onChange={onChange}
+                        name='Almoxarifado'
+                        title='Almoxarifado'
+                        style={{marginBottom: 16}}
                         isChecked={selectedOption === 'Almoxarifado'}
                         onClick={() => handleCheckBoxClick('Almoxarifado')}
-                        checkedCheckBoxColor='#0E5CB5'
+                        value={value}
+                        checkedCheckBoxColor= '#0E5CB5'
                         uncheckedCheckBoxColor='black'
                         rightText="Almoxarifado"
                         rightTextStyle={{ fontSize: 19, color: selectedOption === 'Almoxarifado' ? '#0E5CB5' : 'black', fontWeight: 'bold' }}
                     />
-                </View>
 
-                <TouchableOpacity 
+                )}
+            />
+
+            <Controller
+                control={control}
+                name='Operador'
+                defaultValue={false}
+                render={({ field: { onChange, value } }) => (
+                    <CheckBox
+                        onChange={onChange}
+                        title='Operador'
+                        style={{marginBottom: 16}}
+                        isChecked={selectedOption === 'Operador'}
+                        onClick={() => handleCheckBoxClick('Operador')}
+                        value={value}
+                        checkedCheckBoxColor= '#0E5CB5'
+                        uncheckedCheckBoxColor='black'
+                        rightText="Operador"
+                        rightTextStyle={{ fontSize: 19, color: selectedOption === 'Operador' ? '#0E5CB5' : 'black', fontWeight: 'bold' }}
+                    />
+                )}
+            />
+
+            </View>
+            {errors.cargo && <Text style={styles.labelError}>{errors.cargo.message}</Text>}
+        
+            <TouchableOpacity 
                     style={styles.button}
                     onPress={handleSubmit(createUser)}
                 >
@@ -260,7 +314,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    containerUserame: {
+    containerUsername: {
         flexDirection:'row',
         width: '100%',
         backgroundColor:'#0E5CB5',
@@ -288,6 +342,12 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         color:'#ff375b',
         marginBottom: 8
+    },
+    titleCargo:{
+        marginBottom:16,
+        fontSize: 20,
+        marginTop: 28,
+        fontWeight: 'bold'
     }
 
 });
