@@ -3,8 +3,9 @@ import {View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView} from 'r
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
-import { auth } from '../../config/firebase';
+import { auth1, db } from '../../../config/firebaseConfig1';
 
 import * as Animatable from 'react-native-animatable';
 
@@ -14,16 +15,19 @@ import {useForm, Controller } from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup'
 import * as yup from 'yup';
 
+import CustomAlert from '../../AlertaPersonalizado/CustomAlert';
+
 
 const schema = yup.object({
     email: yup.string().email("Email inválido").required("O campo \"Email\" é obrigatório"),
     password: yup.string().min(6, "A senha deve conter pelo menos 6 dígitos").required("O campo \"Senha\" é obrigatório")
 })
 
-export default function LogIn() {
+export default function LoginAlmox() {
 
     const navigation = useNavigation();
-
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [userTypeAlertVisible, setUserTypeAlertVisible] = useState(false);
     const [hidepass, setHidepass] = useState(true);
     const eyeIconName = hidepass ? 'eye' : 'eye-off';
 
@@ -31,14 +35,35 @@ export default function LogIn() {
         resolver: yupResolver(schema)
     });
 
-    async function loginFirebase(schema){
-        await signInWithEmailAndPassword(auth, schema.email, schema.password)
-        .then(() => {
+    async function loginFirebase(schema) {
+        try {
+            await signInWithEmailAndPassword(auth1, schema.email, schema.password);
             console.log('Usuário logado com sucesso!');
-            navigation.navigate('Inicial');
-      })
+    
+            // Adicione o redirecionamento para a tela correta aqui
+            const currentUser = auth1.currentUser;
+            if (currentUser) {
+                const currentUserUid = currentUser.uid;
+                const userRef = doc(db, "users", currentUserUid);
+                const userSnap = await getDoc(userRef);
+    
+                if (userSnap.exists()) {
+                    const userType = userSnap.data().userType;
+                    if (userType === "Almoxarifado") {
+                        navigation.navigate('PrincipalAlmox');
+                    } else {
+                        setUserTypeAlertVisible(true);
+                    }
+                } else {
+                    console.log('Documento do usuário não encontrado no Firestore.');
+                }
+            } else {
+                console.log('Usuário não está autenticado.');
+            }
+        } catch (error) {
+            setAlertVisible(true);
+        }
     }
-
 
 
     return(
@@ -53,7 +78,7 @@ export default function LogIn() {
 
                 <Animatable.Image
                     animation= "flipInY"
-                    source={require('../../assets/Logo_Login.png')}
+                    source={require('../../../assets/Logo_Login.png')}
                     style={{
                         width: '75%',
                         alignItems: 'center',
@@ -125,13 +150,26 @@ export default function LogIn() {
                 
             <TouchableOpacity 
                     style={styles.buttonRegister}
-                    onPress={ () => navigation.navigate('SignUp')}
+                    onPress={ () => navigation.navigate('SignupAlmox')}
             >
                 <Text style={styles.registerText}>Não possui uma conta? Cadastre-se</Text>
             </TouchableOpacity>
 
             </Animatable.View>
             </ScrollView>
+
+            <CustomAlert
+                visible={alertVisible}
+                title="Alerta"
+                message="Email ou senha incorretos. Tente novamente."
+                onClose={() => setAlertVisible(false)}
+            />
+            <CustomAlert
+                visible={userTypeAlertVisible}
+                title="Alerta"
+                message="Usuário não é do tipo 'Almoxarifado'."
+                onClose={() => setUserTypeAlertVisible(false)}
+            />
 
         </View>
     ); 

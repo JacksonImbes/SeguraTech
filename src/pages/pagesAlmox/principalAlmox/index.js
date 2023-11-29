@@ -6,7 +6,7 @@ import * as Animatable from 'react-native-animatable';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export default function Inicial(){
+export default function PrincipalAlmox(){
 
     const navigation = useNavigation();
 
@@ -19,7 +19,7 @@ export default function Inicial(){
         <Animatable.View animation="fadeInUp" style={styles.containerForm}>
             <Animatable.Image
                         animation= "flipInY"
-                        source={require('../../assets/Logo_Login.png')}
+                        source={require('../../../assets/Logo_Login.png')}
                         style={{
                             width: '45%',
                             alignItems: 'center',
@@ -35,7 +35,7 @@ export default function Inicial(){
                 onPress={ () => navigation.navigate('Checklist') }
                 >
                     <Image
-                        source={require('../../assets/imgCheckList.png')}
+                        source={require('../../../assets/imgCheckList.png')}
                         style={{
                             width: 50,
                             height: 50,
@@ -51,7 +51,7 @@ export default function Inicial(){
                 onPress={() => navigation.navigate('Relatorio')}
                 >
                     <Image
-                        source={require('../../assets/relatório.png')}
+                        source={require('../../../assets/relatório.png')}
                         style={{
                             width: 50,
                             height: 50,
@@ -69,7 +69,7 @@ export default function Inicial(){
                 onPress={() => navigation.navigate('Estoque')}
                 >
                     <Image
-                        source={require('../../assets/estoque.png')}
+                        source={require('../../../assets/estoque.png')}
                         style={{
                             width: 50,
                             height: 50,
@@ -82,7 +82,7 @@ export default function Inicial(){
 
                 <TouchableOpacity 
                 style={styles.buttomConfiguracao}
-                onPress={() => navigation.navigate('Configuracao')}
+                onPress={() => navigation.navigate('ConfiguracaoAlmox')}
                 >
                     <Icon style={styles.iconConfig} name="settings-outline" color='#fff' size={50}/>
                     <Text style={{color: '#fff', fontSize: 15, fontWeight: 'bold'}}> Configuração</Text>

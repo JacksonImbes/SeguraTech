@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import CheckBox from 'react-native-check-box';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword} from 'firebase/auth';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
-import { auth } from '../../config/firebase'
+import { auth1,db } from '../../../config/firebaseConfig1'
 
 import * as Animatable from 'react-native-animatable';
 
@@ -22,30 +22,32 @@ const schema = yup.object().shape({
     confirmarSenha: yup.string().required('Campo \"Confirmar Senha"\ é obrigatório').test('password-match', 'Senhas devem ser iguais', function(value) {
         return this.parent.password === value;
       }),
-    cargo: yup.string().test('is-checked', 'Selecione um cargo', (value) => value === 'Almoxarifado' || value === 'Operador').required('Selecione um cargo'),
   });
   
-  export default function SignUp() {
+  export default function SignupAlmox() {
     const navigation = useNavigation();
   
-    const { control, handleSubmit, formState: { errors }, setValue } = useForm({
+    const { control, handleSubmit, formState: { errors } } = useForm({
       resolver: yupResolver(schema)
     });
   
-    const [selectedOption, setSelectedOption] = useState('');
-  
-    const handleCheckBoxClick = (option) => {
-        setSelectedOption(option);
-        setValue('cargo', option);
-    };
 
     async function createUser(schema) {
-        await createUserWithEmailAndPassword(auth, schema.email, schema.password,schema.confirmarSenha, schema.username, schema.cargo)
+      await createUserWithEmailAndPassword(auth1, schema.email, schema.password, schema.confirmarSenha, schema.username, "Almoxarifado")
         .then(() => {
-            console.log('Conta criada com sucesso!');
-            navigation.navigate('LogIn');
+          console.log('Conta criada com sucesso!');
+          // Adicione a lógica para definir o tipo de usuário no Firestore
+          const currentUser = auth1.currentUser;
+          if (currentUser) {
+            const currentUserUid = currentUser.uid;
+            const userRef = doc(db, "users", currentUserUid);  // Use doc aqui
+            setDoc(userRef, {
+              userType: "Almoxarifado",
+            }, { merge: true });
+          }
+          navigation.navigate('LoginAlmox');
         });
-    };
+    }
   
     return (
       <View style={styles.container}>
@@ -152,66 +154,33 @@ const schema = yup.object().shape({
             </View>
             {errors.confirmarSenha && <Text style={styles.labelError}>{errors.confirmarSenha.message}</Text>}
         
-            <Text style={styles.titleCargo}>Cargo</Text>
-            <View style={styles.containerCheckBox}>
-
-            <Controller
-                control={control}
-                name='Almoxarifado'
-                defaultValue={false}
-                render={({ field: { onChange, value } }) => (
-                    <CheckBox 
-                        onChange={onChange}
-                        name='Almoxarifado'
-                        title='Almoxarifado'
-                        style={{marginBottom: 16}}
-                        isChecked={selectedOption === 'Almoxarifado'}
-                        onClick={() => handleCheckBoxClick('Almoxarifado')}
-                        value={value}
-                        checkedCheckBoxColor= '#0E5CB5'
-                        uncheckedCheckBoxColor='black'
-                        rightText="Almoxarifado"
-                        rightTextStyle={{ fontSize: 19, color: selectedOption === 'Almoxarifado' ? '#0E5CB5' : 'black', fontWeight: 'bold' }}
-                    />
-
-                )}
-            />
-
-            <Controller
-                control={control}
-                name='Operador'
-                defaultValue={false}
-                render={({ field: { onChange, value } }) => (
-                    <CheckBox
-                        onChange={onChange}
-                        title='Operador'
-                        style={{marginBottom: 16}}
-                        isChecked={selectedOption === 'Operador'}
-                        onClick={() => handleCheckBoxClick('Operador')}
-                        value={value}
-                        checkedCheckBoxColor= '#0E5CB5'
-                        uncheckedCheckBoxColor='black'
-                        rightText="Operador"
-                        rightTextStyle={{ fontSize: 19, color: selectedOption === 'Operador' ? '#0E5CB5' : 'black', fontWeight: 'bold' }}
-                    />
-                )}
-            />
-
-            </View>
-            {errors.cargo && <Text style={styles.labelError}>{errors.cargo.message}</Text>}
-        
             <TouchableOpacity 
-                    style={styles.button}
-                    onPress={handleSubmit(createUser)}
-                >
-                    <Text style={styles.buttonText}>Confirmar</Text>
-                </TouchableOpacity>
+              style={styles.button}
+              onPress={handleSubmit(createUser)}
+            >
+              <Text style={styles.buttonText}>Confirmar</Text>
+            </TouchableOpacity>
 
-            </Animatable.View>
+
+            <Text style={styles.normalText}>
+            Ao se cadastrar você está aceitando os
+            {' '}
+            <View style={styles.inline}>
+              <TouchableOpacity
+                style={styles.buttonTermos}
+                onPress={() => navigation.navigate('TermosDeUso')}>
+              <Text style={styles.termosText}>
+                Termos de Uso e Política de Privacidade
+              </Text>
+              </TouchableOpacity>
+            </View>
+            </Text>
+
+          </Animatable.View>
             
-            </ScrollView>
+        </ScrollView>
 
-        </View>
+      </View>
     );
 }
 
@@ -348,6 +317,29 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginTop: 28,
         fontWeight: 'bold'
+    },
+    normalText:{
+      color: 'grey',
+      fontSize: 15,
+      fontWeight:'bold',
+      marginLeft: 25,
+      marginBottom: 15,
+      marginTop:-40
+    },
+    termosText:{
+      fontSize: 15,
+      color: '#555',
+      textDecorationLine: 'underline',
+      fontWeight: 'bold',
+    },
+    meioText:{
+      color: 'grey',
+      fontSize: 15,
+      fontWeight:'bold',
+    },
+    inline:{
+      flexDirection: 'row',
+      alignItems: 'center',
     }
 
 });

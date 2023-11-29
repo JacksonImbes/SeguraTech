@@ -5,30 +5,30 @@ import * as Animatable from 'react-native-animatable'
 
 import { useNavigation } from '@react-navigation/native';
 
-export default function Welcome() {
+export default function EditarContaOper() {
     const navigation = useNavigation();
 
     return(
         <View style={styles.container}>
             <View style={styles.containerLogo}>
-                <Animatable.Image
-                    animation= "flipInY"
-                    source={require('../../assets/Logo.png')}
-                    style={{width: '100%' }}
-                    resizeMode="contain"
-                />
+            <Text style={styles.title}>Conta</Text>
             </View>
 
             <Animatable.View delay={600} animation="fadeInUp" style={styles.containerForm}> 
-                <Text style={styles.title}>Bem Vindo!</Text>
-                <Text style={styles.text}>Faça o Login para começar</Text> 
 
                 <TouchableOpacity 
-                style={styles.button}
-                onPress={ () => navigation.navigate('Select') }
+                style={styles.button1}
+                onPress={ () => navigation.navigate('AlterarEmailOper') }
                 >
-                    <Text style={styles.buttonText}>Acessar</Text>
-                </TouchableOpacity> 
+                    <Text style={styles.buttonText}>Alterar Email</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                style={styles.button2}
+                onPress={ () => navigation.navigate('AlterarSenhaOper') }
+                >
+                    <Text style={styles.buttonText}>Alterar Senha</Text>
+                </TouchableOpacity>  
             </Animatable.View>           
         </View>
     ); 
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#E2F4FF"
     },
     containerLogo:{
-        flex: 2,
+        flex: 1,
         backgroundColor: "#E2F4FF",
         justifyContent: 'center',
         alignItems: 'center'
@@ -54,25 +54,38 @@ const styles = StyleSheet.create({
         paddingEnd: '5%'
     },
     title:{
-        fontSize: 30,
-        fontWeight: 'bold',
-        marginTop: 28,
-        marginBottom: 12
+      fontSize: 40,
+      fontWeight: 'bold',
+      color: '#0E5CB5'
     },
     text:{
         fontSize: 17,
         color: '#a1a1a1'
     },
-    button:{
-        position: 'absolute',
+    button1:{
         backgroundColor: "#0E5CB5",
         borderRadius: 50,
-        paddingVertical: 8,
-        width: '60%',
+        paddingVertical: 15,
+        width: '80%',
         alignSelf: 'center',
         bottom: '15%',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginTop: 100
+
+    },
+
+    button2:{
+        backgroundColor: "#0E5CB5",
+        borderRadius: 50,
+        paddingVertical: 15,
+        width: '80%',
+        alignSelf: 'center',
+        bottom: '15%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop:40
+
     },
     buttonText:{
         fontSize: 18,

@@ -5,7 +5,7 @@ import * as Animatable from 'react-native-animatable'
 
 import { useNavigation } from '@react-navigation/native';
 
-export default function Welcome() {
+export default function Select() {
     const navigation = useNavigation();
 
     return(
@@ -20,15 +20,21 @@ export default function Welcome() {
             </View>
 
             <Animatable.View delay={600} animation="fadeInUp" style={styles.containerForm}> 
-                <Text style={styles.title}>Bem Vindo!</Text>
-                <Text style={styles.text}>Faça o Login para começar</Text> 
+                <Text style={styles.title}>Entrar como:</Text>
 
                 <TouchableOpacity 
-                style={styles.button}
-                onPress={ () => navigation.navigate('Select') }
+                style={styles.button1}
+                onPress={ () => navigation.navigate('LoginAlmox') }
                 >
-                    <Text style={styles.buttonText}>Acessar</Text>
-                </TouchableOpacity> 
+                    <Text style={styles.buttonText}>Almoxarifado</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                style={styles.button2}
+                onPress={ () => navigation.navigate('LoginOper') }
+                >
+                    <Text style={styles.buttonText}>Operador</Text>
+                </TouchableOpacity>  
             </Animatable.View>           
         </View>
     ); 
@@ -40,7 +46,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#E2F4FF"
     },
     containerLogo:{
-        flex: 2,
+        flex: 1,
         backgroundColor: "#E2F4FF",
         justifyContent: 'center',
         alignItems: 'center'
@@ -57,22 +63,37 @@ const styles = StyleSheet.create({
         fontSize: 30,
         fontWeight: 'bold',
         marginTop: 28,
-        marginBottom: 12
+        marginBottom: 12,
+        marginLeft: 90
     },
     text:{
         fontSize: 17,
         color: '#a1a1a1'
     },
-    button:{
-        position: 'absolute',
+    button1:{
         backgroundColor: "#0E5CB5",
         borderRadius: 50,
-        paddingVertical: 8,
-        width: '60%',
+        paddingVertical: 15,
+        width: '80%',
         alignSelf: 'center',
         bottom: '15%',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginTop: 100
+
+    },
+
+    button2:{
+        backgroundColor: "#0E5CB5",
+        borderRadius: 50,
+        paddingVertical: 15,
+        width: '80%',
+        alignSelf: 'center',
+        bottom: '15%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop:40
+
     },
     buttonText:{
         fontSize: 18,
